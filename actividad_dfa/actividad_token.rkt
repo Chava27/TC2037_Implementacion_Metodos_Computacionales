@@ -68,6 +68,25 @@ Luis Javier Karam Galland A01751941
   (member char '(#\) )))
 
 
+#|
+start
+var
+n_sign
+sp_num
+float
+dot
+exp
+e_sign
+e_float
+sp
+sp_par
+par_close
+par_op
+cmmt_start
+cmmt
+int
+
+|#
 
 (define (delta-arithmetic-1 state character)
   " Transition to identify basic arithmetic operations "
@@ -77,24 +96,35 @@ Luis Javier Karam Galland A01751941
               [(sign? character) (values #f 'n_sign)]
               [(or (char-alphabetic? character) (eq? character #\_))
                (values #f 'var)]
+              [(comment? character) (values #f 'cmmt_start)]
               [else (values #f 'fail)])]
     ['n_sign (cond
                [(char-numeric? character) (values #f 'int)]
                [else (values #f 'fail)])]
     ['int (cond
             [(char-numeric? character) (values #f 'int)]
+            [(char-whitespace? character) (values #f 'sp_num)]
+            #|Como saber cuando no va #f en values|#
             [(operator? character) (values 'int 'op)]
+            [(dot? character) (values #f 'dot)]
             [else (values #f 'fail)])]
     ['var (cond
             [(or (char-alphabetic? character) (eq? character #\_))
              (values #f 'var)]
             [(char-numeric? character) (values #f 'var)]
             [(operator? character) (values 'var 'op)]
+            [(char-whitespace? character) (values #f 'sp_nvf)]
             [else (values #f 'fail)])]
     ['op (cond
            [(char-numeric? character) (values 'op 'int)]
            [(sign? character) (values 'op 'n_sign)]
            [(or (char-alphabetic? character) (eq? character #\_))
             (values 'op 'var)]
+           [(char-whitespace? character) (values #f 'o_sp)]
            [else (values #f 'fail)])]
     ['fail (values #f 'fail)]))
+
+    #|55552 *                 var/ float/ int /n_sign / par
+    989809*()
+    
+    |#
