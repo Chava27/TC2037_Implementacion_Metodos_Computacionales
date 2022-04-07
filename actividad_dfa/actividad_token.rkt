@@ -67,14 +67,6 @@ Luis Javier Karam Galland A01751941
 (define (par_close? char)
   (member char '(#\) )))
 
-
-#|
-par_close
-
-4968968 (98398
-)     * 
-|#
-
 (define (delta-arithmetic-1 state character)
   " Transition to identify basic arithmetic operations "
   (case state
