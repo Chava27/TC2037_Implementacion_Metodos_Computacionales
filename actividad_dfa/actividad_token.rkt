@@ -124,6 +124,9 @@ Luis Javier Karam Galland A01751941
             [(char-numeric? character) (values #f 'e_float)]
             [(sign? character) (values #f 'e_sign)]
             [else (values #f 'fail)])]
+    ['e_sign (cond
+            [(char-numeric? character) (values #f 'e_float)]
+            [else (values #f 'fail)])]
     ['e_float (cond
             [(char-numeric? character) (values #f 'e_float)]
             [(char-whitespace? character) (values 'e_float 'sp_nvf)]
