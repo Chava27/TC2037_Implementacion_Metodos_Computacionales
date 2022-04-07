@@ -69,22 +69,18 @@ Luis Javier Karam Galland A01751941
 
 
 #|
-start
-var
-n_sign
-sp_num
-float
-dot
-exp
+
 e_sign
 e_float
-sp
+op_sp
+sp_nvf
 sp_par
 par_close
 par_op
-cmmt_start
-cmmt
+cmmt ?
 int
+
+4968968 (98398
 
 |#
 
@@ -97,34 +93,66 @@ int
               [(or (char-alphabetic? character) (eq? character #\_))
                (values #f 'var)]
               [(comment? character) (values #f 'cmmt_start)]
+              [(par_op? character) (values #f 'par_op)]
+              [else (values #f 'fail)])]
+    ['cmmt_start (cond
+              [(comment? character) (values 'cmmt_start 'cmmt)]
+              [else (values #f 'fail)])]
+    #|Duda estado comment|#
+    ['cmmt (cond
+              [(comment? character) (values 'cmmt_start 'cmmt)]
               [else (values #f 'fail)])]
     ['n_sign (cond
                [(char-numeric? character) (values #f 'int)]
                [else (values #f 'fail)])]
     ['int (cond
             [(char-numeric? character) (values #f 'int)]
-            [(char-whitespace? character) (values #f 'sp_num)]
+            [(char-whitespace? character) (values 'int 'sp_nvf)]
             #|Como saber cuando no va #f en values|#
             [(operator? character) (values 'int 'op)]
             [(dot? character) (values #f 'dot)]
+            [(par_close? character)(values 'int 'par_close)]
             [else (values #f 'fail)])]
     ['var (cond
             [(or (char-alphabetic? character) (eq? character #\_))
              (values #f 'var)]
             [(char-numeric? character) (values #f 'var)]
             [(operator? character) (values 'var 'op)]
-            [(char-whitespace? character) (values #f 'sp_nvf)]
+            [(char-whitespace? character) (values 'var 'sp_nvf)]
+            [(par_close? character) (values 'var 'par_close)]
             [else (values #f 'fail)])]
     ['op (cond
            [(char-numeric? character) (values 'op 'int)]
            [(sign? character) (values 'op 'n_sign)]
            [(or (char-alphabetic? character) (eq? character #\_))
             (values 'op 'var)]
-           [(char-whitespace? character) (values #f 'o_sp)]
+           [(char-whitespace? character) (values 'op 'o_sp)]
+           [(par_op? character) (values 'op 'par_op)]
+           [(comment? character) (values #f 'cmmt_start)]
            [else (values #f 'fail)])]
+    ['dot (cond
+            [(char-numeric? character) (values #f 'float)]
+            [else (values #f 'fail)])]
+    ['float (cond
+            [(char-numeric? character) (values #f 'float)]
+            [(operator? character) (values 'float 'op)]
+            [(char-whitespace? character) (values 'float 'sp_nvf)]
+            [(par_close? character) (values 'float 'par_close)]
+            [(exp? character) (values #f 'exp)]
+            [else (values #f 'fail)])]
+    ['exp (cond
+            [(char-numeric? character) (values #f 'e_float)]
+            [(sign? character) (values #f 'e_sign)]
+            [else (values #f 'fail)])]
+
     ['fail (values #f 'fail)]))
 
     #|55552 *                 var/ float/ int /n_sign / par
     989809*()
+    CHECAR DIRECCION CMMT_START
+    4224// int
+    dhfauhf// var
+    293u98 // sp sp_nvf
+  ` 309.32// float - e_float
     
     |#
