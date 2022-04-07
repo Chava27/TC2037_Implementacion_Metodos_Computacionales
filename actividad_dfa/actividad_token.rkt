@@ -69,7 +69,7 @@ Luis Javier Karam Galland A01751941
 
 
 #|
-op_sp
+sp
 sp_nvf
 sp_par
 par_close
@@ -93,11 +93,11 @@ int
               [(par_op? character) (values #f 'par_op)]
               [else (values #f 'fail)])]
     ['cmmt_start (cond
-              [(comment? character) (values 'cmmt_start 'cmmt)]
+              [(comment? character) (values #f 'cmmt)]
               [else (values #f 'fail)])]
     #|Duda estado comment|#
     ['cmmt (cond
-              [(comment? character) (values 'cmmt_start 'cmmt)]
+              [(comment? character) (values 'cmmt 'cmmt)]
               [else (values #f 'fail)])]
     ['n_sign (cond
                [(char-numeric? character) (values #f 'int)]
@@ -105,7 +105,6 @@ int
     ['int (cond
             [(char-numeric? character) (values #f 'int)]
             [(char-whitespace? character) (values 'int 'sp_nvf)]
-            #|Como saber cuando no va #f en values|#
             [(operator? character) (values 'int 'op)]
             [(dot? character) (values #f 'dot)]
             [(par_close? character)(values 'int 'par_close)]
@@ -123,7 +122,7 @@ int
            [(sign? character) (values 'op 'n_sign)]
            [(or (char-alphabetic? character) (eq? character #\_))
             (values 'op 'var)]
-           [(char-whitespace? character) (values 'op 'o_sp)]
+           [(char-whitespace? character) (values 'op 'op_sp)]
            [(par_op? character) (values 'op 'par_op)]
            [(comment? character) (values #f 'cmmt_start)]
            [else (values #f 'fail)])]
@@ -146,6 +145,14 @@ int
             [(char-whitespace? character) (values 'e_float 'sp_nvf)]
             [(operator? character) (values 'e_float 'op)]
             [(par_close? character)(values 'e_float 'par_close)]
+            [else (values #f 'fail)])]
+    ['op_sp (cond
+            [(char-whitespace? character) (values #f 'op_sp)]
+            [(sign? character) (values #f 'n_sign)]
+            [(or (char-alphabetic? character) (eq? character #\_))
+            (values #f 'var)]
+            [(char-numeric? character) (values #f 'int)]
+            [(par_op? character) (values #f 'par_op)]
             [else (values #f 'fail)])]
 
     ['fail (values #f 'fail)]))
