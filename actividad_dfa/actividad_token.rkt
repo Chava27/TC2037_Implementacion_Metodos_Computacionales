@@ -69,13 +69,9 @@ Luis Javier Karam Galland A01751941
 
 
 #|
-sp
 sp_nvf
 sp_par
 par_close
-par_op
-cmmt ?
-int
 
 4968968 (98398
 
@@ -91,14 +87,13 @@ int
                (values #f 'var)]
               [(comment? character) (values #f 'cmmt_start)]
               [(par_op? character) (values #f 'par_op)]
+              [(char-whitespace? character) (value-blame #f 'sp)]
               [else (values #f 'fail)])]
     ['cmmt_start (cond
               [(comment? character) (values #f 'cmmt)]
               [else (values #f 'fail)])]
     #|Duda estado comment|#
-    ['cmmt (cond
-              [(comment? character) (values 'cmmt 'cmmt)]
-              [else (values #f 'fail)])]
+    ['cmmt (values 'cmmt 'cmmt)]
     ['n_sign (cond
                [(char-numeric? character) (values #f 'int)]
                [else (values #f 'fail)])]
@@ -153,6 +148,21 @@ int
             (values #f 'var)]
             [(char-numeric? character) (values #f 'int)]
             [(par_op? character) (values #f 'par_op)]
+            [else (values #f 'fail)])]
+    ['par_op (cond
+            [(char-whitespace? character) (values 'par_op 'sp)]
+            [(char-numeric? character) (values 'par_op 'int)]
+            [(or (char-alphabetic? character) (eq? character #\_))
+            (values 'par_op 'var)]
+            [(sign? character) (values 'par_op 'n_sign)]
+            [else (values #f 'fail)])]
+    ['sp (cond
+            [(char-whitespace? character) (values #f 'sp)]
+            [(char-numeric? character) (values #f 'int)]
+            [(or (char-alphabetic? character) (eq? character #\_))
+            (values '#f 'var)]
+            [(sign? character) (values '#f 'n_sign)]
+            [(par_close? character) (values '#f 'par_close)]
             [else (values #f 'fail)])]
 
     ['fail (values #f 'fail)]))
