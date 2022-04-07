@@ -69,9 +69,6 @@ Luis Javier Karam Galland A01751941
 
 
 #|
-
-e_sign
-e_float
 op_sp
 sp_nvf
 sp_par
@@ -143,6 +140,12 @@ int
     ['exp (cond
             [(char-numeric? character) (values #f 'e_float)]
             [(sign? character) (values #f 'e_sign)]
+            [else (values #f 'fail)])]
+    ['e_float (cond
+            [(char-numeric? character) (values #f 'e_float)]
+            [(char-whitespace? character) (values 'e_float 'sp_nvf)]
+            [(operator? character) (values 'e_float 'op)]
+            [(par_close? character)(values 'e_float 'par_close)]
             [else (values #f 'fail)])]
 
     ['fail (values #f 'fail)]))
