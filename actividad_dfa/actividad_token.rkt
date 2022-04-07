@@ -69,12 +69,10 @@ Luis Javier Karam Galland A01751941
 
 
 #|
-sp_nvf
-sp_par
 par_close
 
 4968968 (98398
-
+)     * 
 |#
 
 (define (delta-arithmetic-1 state character)
@@ -92,7 +90,6 @@ par_close
     ['cmmt_start (cond
               [(comment? character) (values #f 'cmmt)]
               [else (values #f 'fail)])]
-    #|Duda estado comment|#
     ['cmmt (values 'cmmt 'cmmt)]
     ['n_sign (cond
                [(char-numeric? character) (values #f 'int)]
@@ -156,23 +153,22 @@ par_close
             (values 'par_op 'var)]
             [(sign? character) (values 'par_op 'n_sign)]
             [else (values #f 'fail)])]
+
+    ['par_close (cond
+            [(operator? character) (values 'par_close 'op)]
+            [(char-whitespace? character) (values 'par_close 'sp)]
+            [else (values #f 'fail)])]
     ['sp (cond
             [(char-whitespace? character) (values #f 'sp)]
             [(char-numeric? character) (values #f 'int)]
             [(or (char-alphabetic? character) (eq? character #\_))
             (values '#f 'var)]
             [(sign? character) (values '#f 'n_sign)]
-            [(par_close? character) (values '#f 'par_close)]
+            [else (values #f 'fail)])]
+    ['sp_nvf (cond
+            [(char-whitespace? character) (values #f 'sp_nvf)]
+            [(par_close? character) (values #f 'par_close)]
+            [(operator? character) (values #f 'op)]
             [else (values #f 'fail)])]
 
     ['fail (values #f 'fail)]))
-
-    #|55552 *                 var/ float/ int /n_sign / par
-    989809*()
-    CHECAR DIRECCION CMMT_START
-    4224// int
-    dhfauhf// var
-    293u98 // sp sp_nvf
-  ` 309.32// float - e_float
-    
-    |#
