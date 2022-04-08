@@ -27,21 +27,27 @@ Luis Javier Karam Galland A01751941
   (trace-let loop
     ([state (dfa-str-initial-state dfa)]    ; Current state
      [chars (string->list input-string)]    ; List of characters
+     [token_var null]
      [result null])                         ; List of tokens found
     (if (empty? chars)
       ; Check that the final state is in the accept states list
       ;(member state (dfa-str-accept-states dfa))
       (if (member state (dfa-str-accept-states dfa))
-        (reverse (cons state result)) #f)
+        (reverse (cons state result )) #f)
       ; Recursive loop with the new state and the rest of the list
       (let-values
         ; Get the new token found and state by applying the transition function
-        ([(token state) ((dfa-str-transitions dfa) state (car chars))])
+        ([(token state)((dfa-str-transitions dfa) state (car chars))])
         (loop
           state
           (cdr chars)
+          (cond
+            [token (list(car chars))]
+            [(not (char-whitespace? (car chars))) (cons (car chars) token_var)]
+            [else token_var])
           ; Update the list of tokens found
-          (if token (cons token result) result))))))
+          (if token (cons (list token (list->string(reverse token_var)))result) result)
+          )))))
 
 (define (operator? char)
   (member char '(#\+ #\- #\* #\/ #\^ #\=)))
@@ -51,9 +57,6 @@ Luis Javier Karam Galland A01751941
 
 (define (dot? char)
   (member char '(#\.)))
-
-(define (space? char)
-  (member char '(#\ )))
 
 (define (comment? char)
   (member char '(#\/)))
@@ -77,7 +80,7 @@ Luis Javier Karam Galland A01751941
                (values #f 'var)]
               [(comment? character) (values #f 'cmmt_start)]
               [(par_op? character) (values #f 'par_op)]
-              [(char-whitespace? character) (value-blame #f 'sp)]
+              [(char-whitespace? character) (values #f 'sp)]
               [else (values #f 'fail)])]
     ['cmmt_start (cond
               [(comment? character) (values #f 'cmmt)]
@@ -85,6 +88,7 @@ Luis Javier Karam Galland A01751941
     ['cmmt (values 'cmmt 'cmmt)]
     ['n_sign (cond
                [(char-numeric? character) (values #f 'int)]
+               [(comment? character) (values #f 'cmmt_start)]
                [else (values #f 'fail)])]
     ['int (cond
             [(char-numeric? character) (values #f 'int)]
@@ -108,10 +112,11 @@ Luis Javier Karam Galland A01751941
             (values 'op 'var)]
            [(char-whitespace? character) (values 'op 'op_sp)]
            [(par_op? character) (values 'op 'par_op)]
-           [(comment? character) (values #f 'cmmt_start)]
+           [(comment? character) (values #f 'cmmt)]
            [else (values #f 'fail)])]
     ['dot (cond
             [(char-numeric? character) (values #f 'float)]
+            [(comment? character) (values #f 'cmmt_start)]
             [else (values #f 'fail)])]
     ['float (cond
             [(char-numeric? character) (values #f 'float)]
@@ -123,9 +128,11 @@ Luis Javier Karam Galland A01751941
     ['exp (cond
             [(char-numeric? character) (values #f 'e_float)]
             [(sign? character) (values #f 'e_sign)]
+            [(comment? character) (values #f 'cmmt_start)]
             [else (values #f 'fail)])]
     ['e_sign (cond
             [(char-numeric? character) (values #f 'e_float)]
+            [(comment? character) (values #f 'cmmt_start)]
             [else (values #f 'fail)])]
     ['e_float (cond
             [(char-numeric? character) (values #f 'e_float)]
@@ -140,6 +147,7 @@ Luis Javier Karam Galland A01751941
             (values #f 'var)]
             [(char-numeric? character) (values #f 'int)]
             [(par_op? character) (values #f 'par_op)]
+            [(comment? character) (values #f 'cmmt_start)]
             [else (values #f 'fail)])]
     ['par_op (cond
             [(char-whitespace? character) (values 'par_op 'sp)]
@@ -147,6 +155,7 @@ Luis Javier Karam Galland A01751941
             [(or (char-alphabetic? character) (eq? character #\_))
             (values 'par_op 'var)]
             [(sign? character) (values 'par_op 'n_sign)]
+            [(comment? character) (values #f 'cmmt_start)]
             [else (values #f 'fail)])]
 
     ['par_close (cond
@@ -159,6 +168,8 @@ Luis Javier Karam Galland A01751941
             [(or (char-alphabetic? character) (eq? character #\_))
             (values '#f 'var)]
             [(sign? character) (values '#f 'n_sign)]
+            [(comment? character) (values #f 'cmmt_start)]
+            [(par_op? character) (values #f 'par_op)]
             [else (values #f 'fail)])]
     ['sp_nvf (cond
             [(char-whitespace? character) (values #f 'sp_nvf)]
@@ -169,13 +180,8 @@ Luis Javier Karam Galland A01751941
     ['fail (values #f 'fail)]))
 
 
-    ;Function to reverse list
-(define (reverse x)
-  (let loop ([x x] [lst-reversed '()])
-    (if (empty? x)
-        lst-reversed
-        (loop (rest x) (cons (first x) lst-reversed)))))
 
-
-(reverse (arithmetic-lexer "2+(3)"))
-(reverse (arithmetic-lexer "lolipop23+(3.03e12-11)"))
+;(arithmetic-lexer "lolipop23+(3.03e12-11)")
+;(arithmetic-lexer "")
+(arithmetic-lexer "          (-3/-4*2)//oihd")
+;(arithmetic-lexer "a + b = 25*(4/2)")
