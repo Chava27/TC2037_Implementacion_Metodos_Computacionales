@@ -178,3 +178,4 @@ Luis Javier Karam Galland A01751941
 
 
 (reverse (arithmetic-lexer "2+(3)"))
+(reverse (arithmetic-lexer "lolipop23+(3.03e12-11)"))
