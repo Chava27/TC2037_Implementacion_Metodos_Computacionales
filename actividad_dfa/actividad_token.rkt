@@ -167,3 +167,14 @@ Luis Javier Karam Galland A01751941
             [else (values #f 'fail)])]
 
     ['fail (values #f 'fail)]))
+
+
+    ;Function to reverse list
+(define (reverse x)
+  (let loop ([x x] [lst-reversed '()])
+    (if (empty? x)
+        lst-reversed
+        (loop (rest x) (cons (first x) lst-reversed)))))
+
+
+(reverse (arithmetic-lexer "2+(3)"))
