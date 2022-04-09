@@ -33,7 +33,7 @@ Luis Javier Karam Galland A01751941
       ; Check that the final state is in the accept states list
       ;(member state (dfa-str-accept-states dfa))
       (if (member state (dfa-str-accept-states dfa))
-        (reverse (cons (list(list->string(reverse token_var))state) result )) #f)
+        (reverse (cons (list state (list->string(reverse token_var))) result )) #f)
       ; Recursive loop with the new state and the rest of the list
       (let-values
         ; Get the new token found and state by applying the transition function
