@@ -42,11 +42,16 @@ Luis Javier Karam Galland A01751941
           state
           (cdr chars)
           (cond
+            [(eq? token 'cmmt) (cons (car chars) token_var)]
             [token (list(car chars))]
             [(not (char-whitespace? (car chars))) (cons (car chars) token_var)]
             [else token_var])
-          ; Update the list of tokens found
-          (if token (cons (list token (list->string(reverse token_var)))result) result)
+          ; Update the list of tokens found         
+          ;(if token (cons (list token (list->string(reverse token_var)))result) result)
+          (cond
+            [(eq? token 'cmmt) result]
+            [token (cons (list token (list->string(reverse token_var)))result)]
+            [else result])
           )))))
 
 (define (operator? char)
@@ -167,7 +172,7 @@ Luis Javier Karam Galland A01751941
             [(char-numeric? character) (values #f 'int)]
             [(or (char-alphabetic? character) (eq? character #\_))
             (values '#f 'var)]
-            [(sign? character) (values '#f 'n_sign)]
+            [(sign? character) (values #f 'n_sign)]
             [(comment? character) (values #f 'cmmt_start)]
             [(par_op? character) (values #f 'par_op)]
             [else (values #f 'fail)])]
